@@ -7,7 +7,8 @@ import os
 db = SQLAlchemy()
 DB_NAME = "database/file_database.db"
 UPLOAD_FOLDER = 'generic_file_management/files'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg',
+                      'jpeg', 'gif', 'doc', 'docx', 'xls', 'xlsx'}
 
 
 def create_database(app):
