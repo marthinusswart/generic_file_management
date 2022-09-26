@@ -1,5 +1,5 @@
 from flask_restful import Resource
-from flask import request, current_app, jsonify
+from flask import request, current_app, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 import os
 import uuid
@@ -108,3 +108,27 @@ class FileManagement(Resource):
             return {'result': 'File deleted', 'Id received': file_id}
         else:
             return {'result': 'File exists in the database but does not exist on the server, deleted from the database only', 'Id received': file_id}
+
+
+class FileDownload(Resource):
+    def get(self, tenant_key, file_id):
+        #upload_directory = current_app.root_path
+        # print(upload_directory)
+        upload_directory = current_app.config['UPLOAD_FOLDER']
+        upload_directory = os.path.join(upload_directory, tenant_key)
+
+        from .models.generic_file_management_models import File
+        db_file = File.query.filter_by(
+            tenant_key=tenant_key, id=file_id).first()
+
+        if not db_file:
+            return {'result': 'No file by that id', 'Id received': file_id}, 404
+
+        filename = db_file.filename
+        file_on_disk = upload_directory + '/' + filename
+        if not os.path.exists(file_on_disk):
+            return {'result': 'File does not exist'}, 404
+        else:
+            upload_directory = os.path.abspath(upload_directory)
+
+        return send_from_directory(upload_directory, filename, as_attachment=True)
